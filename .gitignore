@@ -1,7 +1,10 @@
 node_modules/
 .next/
+.env
 .env.local
 logs/*.log
-credentials/
-/config
+
 znotes.md
+config/
+credentials/
+ 
