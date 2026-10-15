@@ -1,17 +1,43 @@
 {
-  "_comment": "Company slugs to check on each ATS. Starter list, not exhaustive. Add more any time: find a company's careers page URL and add the slug below. No code changes needed, these are read at request time.",
+  "_comment": "Company slugs to check on each ATS. Find a slug in a company's careers URL: boards.greenhouse.io/SLUG, jobs.lever.co/SLUG, or jobs.ashbyhq.com/SLUG. Wrong slugs just log a 404 and are skipped, so delete any that 404.",
 
-  "greenhouse": ["stripe", "gitlab", "doist", "automattic", "zapier", "figma", "discord", "notion", "airtable", "coinbase"],
+  "greenhouse": [
+    "stripe",
+    "gitlab",
+    "figma",
+    "discord",
+    "airtable",
+    "coinbase",
+    "anthropic",
+    "cloudflare",
+    "datadog",
+    "mongodb",
+    "twilio",
+    "reddit",
+    "robinhood",
+    "airbnb"
+  ],
   "_greenhouse_howto": "URL: boards.greenhouse.io/{slug}. API: https://boards-api.greenhouse.io/v1/boards/{slug}/jobs",
 
-  "lever": ["netlify", "clever", "plaid", "ramp"],
+  "lever": ["spotify", "palantir"],
   "_lever_howto": "URL: jobs.lever.co/{slug}. API: https://api.lever.co/v0/postings/{slug}?mode=json",
 
-  "ashby": ["linear", "vercel", "replit", "mercury"],
+  "ashby": [
+    "linear",
+    "vercel",
+    "replit",
+    "mercury",
+    "ramp",
+    "notion",
+    "supabase",
+    "posthog",
+    "deel",
+    "openai"
+  ],
   "_ashby_howto": "URL: jobs.ashbyhq.com/{slug}. API: https://api.ashbyhq.com/posting-api/job-board/{slug}",
 
   "bamboohr": [],
   "_bamboohr_howto": "URL: {slug}.bamboohr.com/careers. API: https://{slug}.bamboohr.com/careers/list",
 
-  "notes": "Expand this whenever you find a company worth tracking, especially from your original 40-target-company list."
+  "notes": "Expand this whenever you find a company worth tracking."
 }
