@@ -1,0 +1,24 @@
+{
+  "_comment": "Used by lib/scorer.js to decide which of the 3 resumes to use for a job. Pass 1 is a title keyword match. Pass 2 cross-checks with skill-keyword overlap; if they disagree, the job is flagged for manual review instead of a silent guess.",
+
+  "react_native": {
+    "resumeFile": "Daniel_Chimezie_CV_React_Native_Developer.pdf",
+    "titleKeywords": ["react native", "mobile developer", "mobile application", "ios developer", "android developer", "expo", "flutter"],
+    "skillKeywords": ["react native", "expo", "swift", "kotlin", "app store", "google play", "mobile app"]
+  },
+
+  "product_engineer": {
+    "resumeFile": "Daniel_Chimezie_CV_Product_Engineer.pdf",
+    "titleKeywords": ["product engineer", "founding engineer", "full stack", "full-stack", "fullstack"],
+    "skillKeywords": ["full stack", "end to end", "ownership", "0 to 1", "ship fast", "founding team", "generalist"]
+  },
+
+  "frontend_engineer": {
+    "resumeFile": "Daniel_Chimezie_CV_Frontend_Engineer.pdf",
+    "titleKeywords": ["frontend", "front-end", "front end", "react developer", "ui engineer", "web developer"],
+    "skillKeywords": ["react", "next.js", "typescript", "tailwind", "css", "web application"],
+    "isDefault": true
+  },
+
+  "notes": "frontend_engineer is the default/primary resume. Edit the keyword lists any time to improve matching as you see real results."
+}

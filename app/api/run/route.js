@@ -7,7 +7,7 @@
 //   2. Filter by country/salary eligibility (lib/filters)
 //   3. Drop anything already in the sheet (lib/filters, dedup)
 //   4. Score each job and pick the right CV (lib/scorer)
-//   5. Write new matches to the sheet as "Awaiting Your Approval" (lib/sheets)
+//   5. Write the top new matches to the sheet in ONE batch (lib/sheets)
 //   6. Check for jobs marked "Approved" since the last run:
 //        - Submission Method "Email" with an address in Notes -> auto-apply
 //        - otherwise -> "Needs Manual Apply", surfaced in the digest
@@ -19,16 +19,22 @@
 
 import { NextResponse } from "next/server";
 import { fetchAllJobs } from "../../../lib/fetchers/index.js";
-import { filterJobs, deduplicateAgainstSheet } from "../../../lib/filters.js";
+import { filterJobs, deduplicate } from "../../../lib/filters.js";
 import { scoreAll } from "../../../lib/scorer.js";
 import {
-  addJob, getJobsByStatus, updateStatus, setFollowUpDate, getDueFollowUps,
-  jobAlreadyExists, STATUS,
+  addJobs,
+  getExistingLinks,
+  getJobsByStatus,
+  updateStatus,
+  setFollowUpDate,
+  getDueFollowUps,
+  STATUS,
 } from "../../../lib/sheets.js";
 import { sendDailyDigest, sendFollowUpReminder } from "../../../lib/mailer.js";
 import { sendApplication } from "../../../lib/autoApply.js";
 
 const MINIMUM_MATCH_SCORE = Number(process.env.MINIMUM_MATCH_SCORE || 55);
+const MAX_NEW_ROWS_PER_RUN = 50;
 
 const RESUME_FILENAME_BY_LABEL = {
   frontend_engineer: "Daniel_Chimezie_CV_Frontend_Engineer.pdf",
@@ -54,6 +60,7 @@ export async function POST(request) {
   };
 
   try {
+    // --- 1-3: fetch, filter, dedup ---
     pushLog("=== Fetching jobs from all sources ===");
     const rawJobs = await fetchAllJobs();
     pushLog(`Total raw jobs found: ${rawJobs.length}`);
@@ -61,14 +68,23 @@ export async function POST(request) {
     const eligibleJobs = filterJobs(rawJobs);
     pushLog(`After country/salary filter: ${eligibleJobs.length}`);
 
-    const newJobs = await deduplicateAgainstSheet(eligibleJobs, { jobAlreadyExists });
+    const existingLinks = await getExistingLinks();
+    const newJobs = deduplicate(eligibleJobs, existingLinks);
     pushLog(`After removing duplicates already in sheet: ${newJobs.length}`);
 
+    // --- 4: score + pick CV ---
     const scoredJobs = scoreAll(newJobs, MINIMUM_MATCH_SCORE);
-    pushLog(`After minimum match score (${MINIMUM_MATCH_SCORE}): ${scoredJobs.length}`);
+    pushLog(
+      `After minimum match score (${MINIMUM_MATCH_SCORE}): ${scoredJobs.length}`,
+    );
 
-    for (const job of scoredJobs) {
-      await addJob({
+    // --- 5: write the best matches in one batch ---
+    const toAdd = [...scoredJobs]
+      .sort((a, b) => b.matchScore - a.matchScore)
+      .slice(0, MAX_NEW_ROWS_PER_RUN);
+
+    await addJobs(
+      toAdd.map((job) => ({
         company: job.company || "",
         roleTitle: job.title || "",
         employmentType: job.employmentType || "Not specified",
@@ -80,17 +96,19 @@ export async function POST(request) {
         submissionMethod: "Unknown (check posting)",
         status: STATUS.AWAITING_APPROVAL,
         notes: job.needsManualReview ? "Flagged for manual CV review" : "",
-      });
-    }
-    pushLog(`Added ${scoredJobs.length} new rows to the sheet.`);
+      })),
+    );
+    pushLog(`Added ${toAdd.length} new rows to the sheet.`);
 
-    // --- process approvals ---
+    // --- 6: process approvals ---
     const approved = await getJobsByStatus(STATUS.APPROVED);
     const autoAppliedToday = [];
     const needsManualApply = [];
 
     for (const row of approved) {
-      const submissionMethod = (row["Submission Method"] || "").trim().toLowerCase();
+      const submissionMethod = (row["Submission Method"] || "")
+        .trim()
+        .toLowerCase();
       const notes = row.Notes || "";
       const emailMatch = notes.match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
 
@@ -98,7 +116,9 @@ export async function POST(request) {
         const jobForApply = {
           title: row["Role Title"] || "",
           company: row.Company || "",
-          resumeFile: RESUME_FILENAME_BY_LABEL[row["CV Version Used"]] || RESUME_FILENAME_BY_LABEL.frontend_engineer,
+          resumeFile:
+            RESUME_FILENAME_BY_LABEL[row["CV Version Used"]] ||
+            RESUME_FILENAME_BY_LABEL.frontend_engineer,
         };
         const success = await sendApplication(jobForApply, emailMatch[0]);
         if (success) {
@@ -112,9 +132,11 @@ export async function POST(request) {
       await updateStatus(row._row, STATUS.NEEDS_MANUAL);
       needsManualApply.push(row);
     }
-    pushLog(`Auto-applied: ${autoAppliedToday.length}, Needs manual: ${needsManualApply.length}`);
+    pushLog(
+      `Auto-applied: ${autoAppliedToday.length}, Needs manual: ${needsManualApply.length}`,
+    );
 
-    // --- follow-ups due today ---
+    // --- 7: follow-ups due today ---
     const dueFollowUps = await getDueFollowUps();
     if (dueFollowUps.length) {
       await sendFollowUpReminder(dueFollowUps);
@@ -124,7 +146,7 @@ export async function POST(request) {
     }
     pushLog(`Follow-ups sent: ${dueFollowUps.length}`);
 
-    // --- daily digest ---
+    // --- 8: daily digest ---
     const stillAwaiting = await getJobsByStatus(STATUS.AWAITING_APPROVAL);
     await sendDailyDigest({
       needsApproval: stillAwaiting,
@@ -136,6 +158,9 @@ export async function POST(request) {
     return NextResponse.json({ success: true, log });
   } catch (err) {
     pushLog(`ERROR: ${err.message}`);
-    return NextResponse.json({ success: false, error: err.message, log }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: err.message, log },
+      { status: 500 },
+    );
   }
 }

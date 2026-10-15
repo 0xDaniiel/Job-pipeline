@@ -1,0 +1,20 @@
+{
+  "_comment": "Countries where mid-level developer pay, converted to USD, clears $28,000/year ($2,333/month). Static, manually researched list, not a live feed. Review every few months. A posting with no specific country requirement ('Remote, Worldwide') always passes regardless of this list.",
+  "monthly_floor_usd": 2333,
+  "annual_floor_usd": 28000,
+  "eligible_countries": [
+    "United States", "Switzerland", "Singapore", "Australia", "Israel",
+    "United Arab Emirates", "Canada", "Denmark", "Netherlands", "Germany",
+    "Qatar", "Japan", "Norway", "United Kingdom", "Sweden", "South Korea",
+    "Spain", "China", "Portugal", "Argentina", "Romania", "Poland",
+    "Malaysia", "Brazil", "Vietnam", "Mexico", "South Africa", "Bulgaria",
+    "Ukraine"
+  ],
+  "excluded_with_reason": {
+    "Russia": "Clears the salary floor but most sources this system pulls from don't process hires or payments there due to sanctions.",
+    "India": "Only MNC/FAANG-adjacent roles clear the floor; typical local pay is well under it, and job data doesn't label 'MNC vs local' cleanly.",
+    "Nigeria": "Local pay is well under the floor. Not a target market for local-currency roles.",
+    "Philippines": "Typical pay is well under the floor."
+  },
+  "notes": "Edit eligible_countries to add/remove a country. Matching is case-insensitive substring matching, see lib/filters.js SYNONYMS for abbreviation handling (UK, US, UAE, Dubai, etc)."
+}

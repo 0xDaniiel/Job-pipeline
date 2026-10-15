@@ -5,6 +5,5 @@ node_modules/
 logs/*.log
 
 znotes.md
-config/
 credentials/
  
