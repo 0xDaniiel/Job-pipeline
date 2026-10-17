@@ -1,39 +1,42 @@
 :root {
-  --bg: #0B0D12;
-  --surface: #141821;
-  --surface-raised: #1B2028;
-  --border: #242A35;
-  --text: #E7EAF0;
-  --text-muted: #8A93A3;
-  --text-faint: #5B6370;
-  --accent: #D7A64E;
-  --accent-dim: #8A6D34;
+  --bg: #f6f3ee;
+  --surface: #ffffff;
+  --border: #e4dfd6;
+  --text: #1b2033;
+  --text-muted: #5e6578;
+  --text-faint: #8f95a5;
+  --navy: #1f2a54;
+  --score: #a86a0c;
 
-  --status-awaiting: #D7A64E;
-  --status-approved: #5B8DEF;
-  --status-applied: #4CAF7D;
-  --status-manual: #E0893F;
-  --status-interview: #9B7EDE;
-  --status-rejected: #D85C5C;
-  --status-none: #5B6370;
+  --status-awaiting: #9a6700;
+  --status-approved: #2f5fd0;
+  --status-applied: #2e7d52;
+  --status-manual: #c2410c;
+  --status-interview: #6d4bc2;
+  --status-rejected: #b42318;
+  --status-none: #6b7280;
 }
 
 * {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-body), -apple-system, sans-serif;
+  font-family:
+    var(--font-body),
+    -apple-system,
+    sans-serif;
   font-size: 15px;
   line-height: 1.5;
 }
 
 .wrap {
-  max-width: 880px;
+  max-width: 920px;
   margin: 0 auto;
   padding: 48px 24px 80px;
 }
@@ -42,15 +45,17 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: 36px;
+  gap: 16px;
+  margin-bottom: 32px;
 }
 
 .wordmark {
   font-family: var(--font-display), serif;
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 600;
   margin: 0;
   letter-spacing: -0.01em;
+  color: var(--navy);
 }
 
 .tagline {
@@ -59,28 +64,37 @@ html, body {
   margin-top: 4px;
 }
 
-.refreshBtn {
-  background: transparent;
+.headActions {
+  display: flex;
+  gap: 10px;
+}
+
+.ghostBtn {
+  background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text-muted);
   padding: 8px 14px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 13px;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
 }
-.refreshBtn:hover {
-  border-color: var(--accent-dim);
-  color: var(--text);
+.ghostBtn:hover {
+  border-color: var(--navy);
+  color: var(--navy);
+}
+.ghostBtn.danger:hover {
+  border-color: var(--status-rejected);
+  color: var(--status-rejected);
 }
 
 .statRow {
   display: flex;
-  gap: 40px;
-  padding: 24px 0;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 28px;
+  gap: 48px;
+  padding: 22px 0;
+  margin-bottom: 24px;
   flex-wrap: wrap;
 }
 
@@ -91,20 +105,22 @@ html, body {
 
 .statNumber {
   font-family: var(--font-display), serif;
-  font-size: 30px;
+  font-size: 34px;
   font-weight: 600;
+  color: var(--navy);
+  line-height: 1.1;
 }
 
 .statLabel {
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--text-muted);
   margin-top: 2px;
 }
 
 .tabs {
   display: flex;
-  gap: 24px;
-  margin-bottom: 20px;
+  gap: 26px;
+  border-bottom: 1px solid var(--border);
   overflow-x: auto;
 }
 
@@ -112,31 +128,43 @@ html, body {
   background: none;
   border: none;
   color: var(--text-muted);
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 500;
-  padding: 0 0 10px 0;
+  padding: 0 0 12px 0;
+  margin-bottom: -1px;
   cursor: pointer;
   white-space: nowrap;
   border-bottom: 2px solid transparent;
 }
-
-.tab.active {
+.tab:hover {
   color: var(--text);
-  border-bottom-color: var(--accent);
+}
+.tab.active {
+  color: var(--navy);
+  border-bottom-color: var(--navy);
 }
 
-.jobList {
-  display: flex;
-  flex-direction: column;
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-top: 20px;
+  overflow: hidden;
 }
 
 .jobRow {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 16px;
-  padding: 18px 0;
+  gap: 20px;
+  padding: 20px 24px;
   border-bottom: 1px solid var(--border);
+}
+.jobRow:last-child {
+  border-bottom: none;
+}
+.jobRow:hover {
+  background: #fbfaf7;
 }
 
 .jobMain {
@@ -145,41 +173,54 @@ html, body {
 }
 
 .jobTitle {
-  font-size: 15.5px;
+  font-size: 16px;
   font-weight: 600;
-  margin: 0 0 3px 0;
+  margin: 0 0 4px 0;
 }
-
 .jobTitle a {
   color: var(--text);
   text-decoration: none;
 }
 .jobTitle a:hover {
-  color: var(--accent);
+  color: var(--navy);
+  text-decoration: underline;
 }
 
-.jobMeta {
+.jobCompany {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 13.5px;
+}
+.company {
+  font-weight: 500;
+  color: var(--text);
+}
+.location {
   color: var(--text-muted);
-  font-size: 13px;
 }
 
 .jobMetaLine {
-  margin-top: 6px;
+  margin-top: 10px;
   display: flex;
-  gap: 14px;
+  gap: 16px;
   flex-wrap: wrap;
   align-items: center;
-}
-
-.scoreTag {
-  color: var(--accent);
-  font-weight: 600;
   font-size: 13px;
 }
 
+.scoreTag {
+  color: var(--score);
+  font-weight: 600;
+}
+
+.cvTag {
+  color: var(--text-muted);
+}
+
 .statusPill {
-  font-size: 11.5px;
-  padding: 2px 8px;
+  font-size: 12px;
+  padding: 2px 10px;
   border-radius: 20px;
   font-weight: 500;
   border: 1px solid currentColor;
@@ -189,41 +230,51 @@ html, body {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
-  padding-top: 2px;
 }
 
 .actionBtn {
-  background: transparent;
+  background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text-muted);
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 12.5px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition:
+    border-color 0.15s,
+    color 0.15s,
+    background 0.15s;
 }
 .actionBtn:hover {
   border-color: var(--text-muted);
   color: var(--text);
 }
+.actionBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
 .actionBtn.primary {
-  border-color: var(--accent-dim);
-  color: var(--accent);
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #ffffff;
 }
 .actionBtn.primary:hover {
-  border-color: var(--accent);
-  background: rgba(215, 166, 78, 0.08);
+  background: #2b3a73;
 }
 
-.empty {
+.empty,
+.loading {
   color: var(--text-faint);
-  padding: 60px 0;
+  padding: 64px 0;
   text-align: center;
   font-size: 14px;
 }
 
-.loading {
-  color: var(--text-faint);
-  padding: 60px 0;
-  text-align: center;
+@media (max-width: 640px) {
+  .jobRow {
+    flex-direction: column;
+  }
+  .statRow {
+    gap: 28px;
+  }
 }

@@ -1,21 +1,8 @@
 // app/api/run/route.js
-//
-// The daily orchestrator endpoint. This is the ONE route cron calls every
-// morning (see cron/daily-run.sh). It ties every module together in order:
-//
-//   1. Fetch jobs from every source (lib/fetchers)
-//   2. Filter by country/salary eligibility (lib/filters)
-//   3. Drop anything already in the sheet (lib/filters, dedup)
-//   4. Score each job and pick the right CV (lib/scorer)
-//   5. Write the top new matches to the sheet in ONE batch (lib/sheets)
-//   6. Check for jobs marked "Approved" since the last run:
-//        - Submission Method "Email" with an address in Notes -> auto-apply
-//        - otherwise -> "Needs Manual Apply", surfaced in the digest
-//   7. Check for due follow-ups
-//   8. Send one daily digest email covering all of the above
-//
-// Protected by a shared secret so random internet traffic can't trigger it.
-// Call with: curl -X POST https://yourdomain/api/run -H "x-cron-secret: YOUR_SECRET"
+// The daily pipeline endpoint, called by cron (see cron/daily-run.sh).
+// fetch -> filter -> dedup -> score -> write to sheet (auto-approving high
+// matches) -> process approvals -> follow-ups -> daily digest.
+// Protected by a shared secret: curl -X POST URL -H "x-cron-secret: SECRET"
 
 import { NextResponse } from "next/server";
 import { fetchAllJobs } from "../../../lib/fetchers/index.js";
@@ -34,6 +21,7 @@ import { sendDailyDigest, sendFollowUpReminder } from "../../../lib/mailer.js";
 import { sendApplication } from "../../../lib/autoApply.js";
 
 const MINIMUM_MATCH_SCORE = Number(process.env.MINIMUM_MATCH_SCORE || 55);
+const AUTO_APPROVE_MIN_SCORE = Number(process.env.AUTO_APPROVE_MIN_SCORE || 80);
 const MAX_NEW_ROWS_PER_RUN = 50;
 
 const RESUME_FILENAME_BY_LABEL = {
@@ -60,7 +48,7 @@ export async function POST(request) {
   };
 
   try {
-    // --- 1-3: fetch, filter, dedup ---
+    // --- fetch, filter, dedup ---
     pushLog("=== Fetching jobs from all sources ===");
     const rawJobs = await fetchAllJobs();
     pushLog(`Total raw jobs found: ${rawJobs.length}`);
@@ -72,19 +60,23 @@ export async function POST(request) {
     const newJobs = deduplicate(eligibleJobs, existingLinks);
     pushLog(`After removing duplicates already in sheet: ${newJobs.length}`);
 
-    // --- 4: score + pick CV ---
+    // --- score ---
     const scoredJobs = scoreAll(newJobs, MINIMUM_MATCH_SCORE);
     pushLog(
       `After minimum match score (${MINIMUM_MATCH_SCORE}): ${scoredJobs.length}`,
     );
 
-    // --- 5: write the best matches in one batch ---
+    // --- write best matches in one batch, auto-approving strong ones ---
     const toAdd = [...scoredJobs]
       .sort((a, b) => b.matchScore - a.matchScore)
       .slice(0, MAX_NEW_ROWS_PER_RUN);
 
-    await addJobs(
-      toAdd.map((job) => ({
+    const autoApproved = [];
+    const rowsToAdd = toAdd.map((job) => {
+      const auto =
+        job.matchScore >= AUTO_APPROVE_MIN_SCORE && !job.needsManualReview;
+      if (auto) autoApproved.push(job);
+      return {
         company: job.company || "",
         roleTitle: job.title || "",
         employmentType: job.employmentType || "Not specified",
@@ -94,13 +86,20 @@ export async function POST(request) {
         cvVersion: job.cvVersion,
         link: job.link || "",
         submissionMethod: "Unknown (check posting)",
-        status: STATUS.AWAITING_APPROVAL,
-        notes: job.needsManualReview ? "Flagged for manual CV review" : "",
-      })),
+        status: auto ? STATUS.NEEDS_MANUAL : STATUS.AWAITING_APPROVAL,
+        notes: auto
+          ? `Auto-approved (score ${job.matchScore})`
+          : job.needsManualReview
+            ? "Flagged for manual CV review"
+            : "",
+      };
+    });
+    await addJobs(rowsToAdd);
+    pushLog(
+      `Added ${rowsToAdd.length} new rows (${autoApproved.length} auto-approved).`,
     );
-    pushLog(`Added ${toAdd.length} new rows to the sheet.`);
 
-    // --- 6: process approvals ---
+    // --- process jobs you approved by hand ---
     const approved = await getJobsByStatus(STATUS.APPROVED);
     const autoAppliedToday = [];
     const needsManualApply = [];
@@ -136,7 +135,7 @@ export async function POST(request) {
       `Auto-applied: ${autoAppliedToday.length}, Needs manual: ${needsManualApply.length}`,
     );
 
-    // --- 7: follow-ups due today ---
+    // --- follow-ups due today ---
     const dueFollowUps = await getDueFollowUps();
     if (dueFollowUps.length) {
       await sendFollowUpReminder(dueFollowUps);
@@ -146,11 +145,11 @@ export async function POST(request) {
     }
     pushLog(`Follow-ups sent: ${dueFollowUps.length}`);
 
-    // --- 8: daily digest ---
+    // --- daily digest ---
     const stillAwaiting = await getJobsByStatus(STATUS.AWAITING_APPROVAL);
     await sendDailyDigest({
       needsApproval: stillAwaiting,
-      needsManualApply,
+      needsManualApply: [...autoApproved, ...needsManualApply],
       autoAppliedToday,
     });
     pushLog("Daily digest sent.");
