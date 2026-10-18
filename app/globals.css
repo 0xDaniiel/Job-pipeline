@@ -278,3 +278,17 @@ body {
     gap: 28px;
   }
 }
+.liLinks {
+  margin-top: 10px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+}
+.liLinks a {
+  color: var(--status-approved);
+  text-decoration: none;
+}
+.liLinks a:hover {
+  text-decoration: underline;
+}

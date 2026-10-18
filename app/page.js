@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { linkedinLinks } from "../lib/linkedin.js";
 
 const STATUS_COLOR = {
   "Awaiting Your Approval": "var(--status-awaiting)",
@@ -204,6 +205,29 @@ export default function Dashboard() {
                     {job.Status}
                   </span>
                 </div>
+                <div className="liLinks">
+                  <a
+                    href={linkedinLinks(job.Company).company}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Company on LinkedIn
+                  </a>
+                  <a
+                    href={linkedinLinks(job.Company).recruiters}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Find recruiters
+                  </a>
+                  <a
+                    href={linkedinLinks(job.Company).engineers}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Find engineers
+                  </a>
+                </div>
               </div>
               <div className="jobActions">
                 {job.Status === "Awaiting Your Approval" && (
@@ -211,7 +235,14 @@ export default function Dashboard() {
                     <button
                       className="actionBtn primary"
                       disabled={busyRow === job._row}
-                      onClick={() => updateStatus(job._row, "Approved")}
+                      onClick={() =>
+                        updateStatus(
+                          job._row,
+                          job["Submission Method"] === "Email"
+                            ? "Approved"
+                            : "Needs Manual Apply",
+                        )
+                      }
                     >
                       Approve
                     </button>
