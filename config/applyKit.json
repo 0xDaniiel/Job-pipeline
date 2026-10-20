@@ -1,0 +1,44 @@
+{
+  "_comment": "Everything the dashboard's Apply kit lets you copy. Edit any value, save, and refresh the dashboard (no restart needed). Lines starting with EDIT ME are placeholders: replace them with your real answer. Your phone number is left out on purpose; add one {label, value} line to profile if you want it.",
+
+  "profile": [
+    { "label": "Full name", "value": "Daniel Chimezie" },
+    { "label": "Email", "value": "dannydotdev@gmail.com" },
+    { "label": "LinkedIn", "value": "https://linkedin.com/in/0xdaniiel2" },
+    { "label": "GitHub", "value": "https://github.com/0xDaniiel" },
+    { "label": "Portfolio", "value": "https://0xdaniiel.space" }
+  ],
+
+  "answers": [
+    {
+      "label": "Where are you based?",
+      "value": "Nigeria (UTC+1). I work remotely."
+    },
+    {
+      "label": "Work authorization / how you work",
+      "value": "I am based in Nigeria and work as an independent contractor (B2B). I can invoice through Wise, Payoneer or Deel."
+    },
+    {
+      "label": "Availability / start date",
+      "value": "Immediately"
+    },
+    {
+      "label": "Salary expectation",
+      "value": "$2500/month."
+    },
+    {
+      "label": "Years of experience",
+      "value": "5+ years building production web and mobile products with React, TypeScript, Next.js and React Native."
+    },
+    {
+      "label": "Full-time or contract?",
+      "value": "Open to both full-time and long-term contract roles."
+    }
+  ],
+
+  "summaries": {
+    "frontend_engineer": "Frontend Software Engineer with 5+ years of experience building production web applications in React, TypeScript, and Next.js. Delivered measurable performance gains of 25 to 60 percent faster load times, shipped internationalized (i18n) products for European clients, and built pixel accurate interfaces across marketplace, real estate, and fintech adjacent platforms.",
+    "react_native": "Mobile Application Developer with 5+ years of frontend experience, including 2+ years building production React Native (Expo) apps end to end, from concept to App Store and Google Play release. Shipped real time chat, wallet, and KYC flows for a fintech adjacent hiring marketplace and took a productivity app to both app stores.",
+    "product_engineer": "Product minded Software Engineer with 5+ years shipping web and mobile products end to end, from idea to release to paying users. Founded a web development agency, took a productivity app to both app stores, and built a lead generation tool now used by 13K+ people."
+  }
+}
