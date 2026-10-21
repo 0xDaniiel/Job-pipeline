@@ -1,6 +1,5 @@
 {
   "_comment": "Company slugs to check on each ATS. Find a slug in a company's careers URL: boards.greenhouse.io/SLUG, jobs.lever.co/SLUG, or jobs.ashbyhq.com/SLUG. Wrong slugs just log a 404 and are skipped, so delete any that 404.",
-
   "greenhouse": [
     "stripe",
     "gitlab",
@@ -15,13 +14,22 @@
     "twilio",
     "reddit",
     "robinhood",
-    "airbnb"
+    "airbnb",
+    "dropbox",
+    "pinterest",
+    "asana",
+    "instacart",
+    "lyft",
+    "webflow",
+    "okta",
+    "duolingo"
   ],
   "_greenhouse_howto": "URL: boards.greenhouse.io/{slug}. API: https://boards-api.greenhouse.io/v1/boards/{slug}/jobs",
-
-  "lever": ["spotify", "palantir"],
+  "lever": [
+    "spotify",
+    "palantir"
+  ],
   "_lever_howto": "URL: jobs.lever.co/{slug}. API: https://api.lever.co/v0/postings/{slug}?mode=json",
-
   "ashby": [
     "linear",
     "vercel",
@@ -32,12 +40,11 @@
     "supabase",
     "posthog",
     "deel",
-    "openai"
+    "openai",
+    "clickhouse"
   ],
   "_ashby_howto": "URL: jobs.ashbyhq.com/{slug}. API: https://api.ashbyhq.com/posting-api/job-board/{slug}",
-
   "bamboohr": [],
   "_bamboohr_howto": "URL: {slug}.bamboohr.com/careers. API: https://{slug}.bamboohr.com/careers/list",
-
   "notes": "Expand this whenever you find a company worth tracking."
 }
