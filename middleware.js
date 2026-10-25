@@ -20,7 +20,16 @@ function safeEqual(a, b) {
 export function middleware(request) {
   const user = process.env.DASHBOARD_USER;
   const pass = process.env.DASHBOARD_PASSWORD;
-  if (!user || !pass) return NextResponse.next();
+  if (!user || !pass) {
+    // Never run an open dashboard on the internet: in production, a missing
+    // login means the app refuses to serve anything.
+    if (process.env.NODE_ENV === "production") {
+      return new NextResponse("Dashboard login is not configured", {
+        status: 503,
+      });
+    }
+    return NextResponse.next();
+  }
 
   const cronSecret = process.env.CRON_SECRET;
   if (

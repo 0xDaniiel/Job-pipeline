@@ -19,6 +19,7 @@ import {
 } from "../../../lib/sheets.js";
 import { sendApplication } from "../../../lib/autoApply.js";
 
+export const maxDuration = 30;
 const ALLOWED_STATUSES = new Set(Object.values(STATUS));
 const FOLLOW_UP_STATUSES = new Set([STATUS.APPLIED, STATUS.APPLIED_AUTO]);
 
