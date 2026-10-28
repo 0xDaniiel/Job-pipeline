@@ -1,8 +1,25 @@
+# dependencies
 node_modules/
-.next/
-.env
-.env.local
-logs/*.log
+.pnpm-store/
 
-znotes.md
+# next.js and vercel
+.next/
+out/
+.vercel/
+
+# secrets: never commit
+.env
+.env.*
+!.env.local.example
 credentials/
+
+# logs and archives
+logs/
+*.log
+*.tgz
+
+# personal notes and OS files
+znotes.md
+.DS_Store
+Thumbs.db
+znotes.md
