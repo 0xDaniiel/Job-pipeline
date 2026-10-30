@@ -4,18 +4,25 @@
 //
 //   node --env-file=.env.local scripts/run-pipeline.mjs
 //
-// Exit code 0 = finished, 1 = the run failed (the reason is printed).
+// Exit codes: 0 = finished
+//             2 = the run failed and an alert email was sent
+//             3 = the run failed and the alert email could not be sent
 
 import { runPipeline } from "../lib/pipeline.js";
+import { sendAlert } from "../lib/mailer.js";
 
-const started = new Date();
-console.log(`[${started.toISOString()}] pipeline starting`);
+console.log(`[${new Date().toISOString()}] pipeline starting`);
 
 const result = await runPipeline();
 
 console.log(
   `[${new Date().toISOString()}] pipeline ${result.success ? "finished" : "FAILED"}`,
 );
-if (!result.success) console.error(result.error);
+if (result.success) process.exit(0);
 
-process.exit(result.success ? 0 : 1);
+console.error(result.error);
+const alerted = await sendAlert(
+  "Job pipeline FAILED",
+  `The daily run failed.\n\nReason: ${result.error}\n\nWhat it had done before failing:\n${result.log.join("\n")}`,
+);
+process.exit(alerted ? 2 : 3);
