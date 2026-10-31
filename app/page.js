@@ -137,15 +137,22 @@ export default function Dashboard() {
   const [kit, setKit] = useState(null);
   const [openKit, setOpenKit] = useState(null);
   const [copied, setCopied] = useState(null);
+  const [loadError, setLoadError] = useState("");
 
   async function loadJobs() {
     setLoading(true);
     try {
       const res = await fetch("/api/jobs");
       const data = await res.json();
-      if (data.success) setJobs(data.jobs || []);
+      if (data.success) {
+        setJobs(data.jobs || []);
+        setLoadError("");
+      } else {
+        setLoadError(data.error || "The server could not read the sheet.");
+      }
     } catch (err) {
       console.error("Failed to load jobs", err);
+      setLoadError("Could not reach the server.");
     }
     setLoading(false);
   }
@@ -296,9 +303,13 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {loadError && (
+        <div className="errorBanner">Could not load your jobs: {loadError}</div>
+      )}
+
       {loading ? (
         <div className="loading">Loading jobs...</div>
-      ) : visible.length === 0 ? (
+      ) : loadError ? null : visible.length === 0 ? (
         <div className="empty">
           Nothing here yet. The next daily run will add new matches.
         </div>

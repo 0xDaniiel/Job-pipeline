@@ -369,3 +369,13 @@ a.actionBtn {
   margin-top: 16px;
   flex-wrap: wrap;
 }
+
+.errorBanner {
+  margin-top: 20px;
+  padding: 14px 18px;
+  background: #fdecea;
+  border: 1px solid #f3b9b3;
+  border-radius: 10px;
+  color: var(--status-rejected);
+  font-size: 14px;
+}
